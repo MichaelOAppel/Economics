@@ -66,7 +66,7 @@
             position: absolute;
             top: 150%;
             left: 50%;
-            transform: translateX(-50%);
+            /* Fjernet transform: translateX(-50%); fra CSS, håndteres nu i JS */
             background: rgba(15, 23, 42, 0.95);
             border: 1px solid #334155;
             padding: 0.5rem 1rem;
@@ -74,7 +74,7 @@
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease, top 0.3s ease;
             font-size: 0.875rem;
             font-weight: 600;
             color: #e2e8f0;
@@ -255,10 +255,31 @@
                 label.innerText = chapter.title;
                 node.appendChild(label);
 
-                // Hover effekter for at dæmpe selve kortet, så noden fremstår tydeligere
+                // Dynamisk centrering af label for at undgå at den rammer kanten
                 node.addEventListener('mouseenter', () => {
                     mapContainer.classList.add('dimmed');
+                    
+                    // Nulstil først til standard centrering
+                    label.style.transform = 'translateX(-50%)';
+                    
+                    // Vent et kort øjeblik for at lade browseren beregne dimensionerne
+                    requestAnimationFrame(() => {
+                        const rect = label.getBoundingClientRect();
+                        const mapRect = mapContainer.getBoundingClientRect();
+                        
+                        // Hvis boksen går ud over venstre kant
+                        if (rect.left < mapRect.left) {
+                            const offset = mapRect.left - rect.left + 10; // 10px margin
+                            label.style.transform = `translateX(calc(-50% + ${offset}px))`;
+                        } 
+                        // Hvis boksen går ud over højre kant
+                        else if (rect.right > mapRect.right) {
+                            const offset = rect.right - mapRect.right + 10; // 10px margin
+                            label.style.transform = `translateX(calc(-50% - ${offset}px))`;
+                        }
+                    });
                 });
+
                 node.addEventListener('mouseleave', () => {
                     mapContainer.classList.remove('dimmed');
                 });
