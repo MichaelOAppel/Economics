@@ -65,8 +65,7 @@
         .node-label {
             position: absolute;
             top: 150%;
-            left: 50%;
-            /* Fjernet transform: translateX(-50%); fra CSS, håndteres nu i JS */
+            /* Positionering håndteres nu 100% sikkert i JavaScript */
             background: rgba(15, 23, 42, 0.95);
             border: 1px solid #334155;
             padding: 0.5rem 1rem;
@@ -221,31 +220,28 @@
                 const label = document.createElement('div');
                 label.className = 'node-label';
                 label.innerText = chapter.title;
+                
+                // --- DEN NYE SKUDSIKRE POSITIONERING ---
+                // I stedet for at gætte bredden på hover, sætter vi det fast fra start baseret på X-koordinaten.
+                if (chapter.x < 15) {
+                    // Er punktet langt til venstre (fx kap 1 og 2)? Lad teksten gå ud mod højre.
+                    label.style.left = '50%';
+                    label.style.transform = 'translateX(0)';
+                } else if (chapter.x > 85) {
+                    // Er punktet langt til højre? Lad teksten gå ud mod venstre.
+                    label.style.right = '50%';
+                    label.style.transform = 'translateX(0)';
+                } else {
+                    // Er punktet i midten? Centrer teksten som normalt.
+                    label.style.left = '50%';
+                    label.style.transform = 'translateX(-50%)';
+                }
+                
                 node.appendChild(label);
 
-                // Dynamisk centrering af label for at undgå at den rammer kanten
+                // Nu nøjes vi med at gøre baggrunden mørkere ved hover
                 node.addEventListener('mouseenter', () => {
                     mapContainer.classList.add('dimmed');
-                    
-                    // Nulstil først til standard centrering
-                    label.style.transform = 'translateX(-50%)';
-                    
-                    // Vent et kort øjeblik for at lade browseren beregne dimensionerne
-                    requestAnimationFrame(() => {
-                        const rect = label.getBoundingClientRect();
-                        const mapRect = mapContainer.getBoundingClientRect();
-                        
-                        // Hvis boksen går ud over venstre kant
-                        if (rect.left < mapRect.left) {
-                            const offset = mapRect.left - rect.left + 10; // 10px margin
-                            label.style.transform = `translateX(calc(-50% + ${offset}px))`;
-                        } 
-                        // Hvis boksen går ud over højre kant
-                        else if (rect.right > mapRect.right) {
-                            const offset = rect.right - mapRect.right + 10; // 10px margin
-                            label.style.transform = `translateX(calc(-50% - ${offset}px))`;
-                        }
-                    });
                 });
 
                 node.addEventListener('mouseleave', () => {
