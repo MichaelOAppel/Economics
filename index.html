@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samfundsøkonomi - Interaktivt Overblik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Tailwind slate-900 */
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            aspect-ratio: 16 / 9;
+            background-image: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .world-map-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .map-container.dimmed .world-map-svg {
+            opacity: 0.05;
+        }
+
+        .node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #38bdf8; /* Tailwind sky-400 */
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px #38bdf8, 0 0 20px #38bdf8;
+            z-index: 10;
+        }
+
+        .node:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            background-color: #fcd34d; /* Tailwind amber-300 */
+            box-shadow: 0 0 15px #fcd34d, 0 0 30px #fcd34d;
+            z-index: 50;
+        }
+
+        .node-label {
+            position: absolute;
+            top: 150%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #334155;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            backdrop-filter: blur(4px);
+        }
+
+        .node:hover .node-label {
+            opacity: 1;
+            top: 200%;
+        }
+
+        .node.adhoc {
+            background-color: #ef4444; /* Tailwind red-500 */
+            box-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444;
+        }
+
+        .node.adhoc:hover {
+            background-color: #fca5a5; /* Tailwind red-300 */
+            box-shadow: 0 0 15px #fca5a5, 0 0 30px #fca5a5;
+        }
+
+        /* Responsive justering for mindre skærme */
+        @media (max-width: 768px) {
+            .map-container {
+                aspect-ratio: 4 / 3;
+            }
+            .node {
+                width: 16px; /* Større tap-targets på mobil */
+                height: 16px;
+            }
+            .node-label {
+                display: none; /* Skjul hover labels på meget små skærme, brug i stedet liste */
+            }
+        }
+
+        #custom-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4 md:px-8">
+
+    <header class="w-full max-w-6xl mb-12 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-emerald-400 mb-4 tracking-tight">
+            Samfundsøkonomi
+        </h1>
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+            Udforsk de 27 temaer i den globale og danske økonomi. Før musen over punkterne på verdenskortet for at dykke ned i de enkelte kapitler.
+        </p>
+    </header>
+
+    <main class="w-full max-w-6xl flex-grow relative flex flex-col items-center">
+        
+        <!-- Selve kortet -->
+        <div id="map" class="map-container ring-1 ring-white/10 relative">
+            <!-- Forenklet SVG verdenskort som baggrund -->
+            <svg class="world-map-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                <!-- Nordamerika -->
+                <path d="M 150 100 Q 250 80 280 150 T 200 250 Q 150 200 120 150 Z" fill="#475569"/>
+                <!-- Sydamerika -->
+                <path d="M 220 260 Q 280 260 300 350 T 250 450 Q 220 350 220 260 Z" fill="#475569"/>
+                <!-- Europa -->
+                <path d="M 450 80 Q 550 70 550 150 T 480 180 Q 430 150 450 80 Z" fill="#475569"/>
+                <!-- Afrika -->
+                <path d="M 450 200 Q 550 180 580 280 T 520 400 Q 450 300 450 200 Z" fill="#475569"/>
+                <!-- Asien -->
+                <path d="M 560 70 Q 800 50 850 150 T 700 250 Q 600 200 560 70 Z" fill="#475569"/>
+                <!-- Oceanien -->
+                <path d="M 750 350 Q 850 330 880 400 T 800 480 Q 730 400 750 350 Z" fill="#475569"/>
+            </svg>
+
+            <!-- Noder vil blive indsat her via JavaScript -->
+        </div>
+
+        <!-- Liste til mobilvisning hvor hover er svært -->
+        <div class="mt-12 w-full md:hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-sky-400">Alle Kapitler</h2>
+            <ul id="mobile-list" class="space-y-2">
+                <!-- Bliver fyldt med JS -->
+            </ul>
+        </div>
+    </main>
+
+    <!-- Custom Modal (erstatter alert) -->
+    <div id="custom-modal" class="flex">
+        <div class="bg-slate-800 border border-slate-700 p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all">
+            <div class="flex items-center justify-between mb-6">
+                <h3 id="modal-title" class="text-2xl font-bold text-white">Kapitel titel</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <p class="text-slate-300 mb-8 leading-relaxed">
+                Når hjemmesiden er lagt på GitHub, vil dette klik føre dig direkte til den specifikke Markdown-side for dette kapitel, hvor brødteksten og under-overskrifterne kan læses.
+            </p>
+            <button onclick="closeModal()" class="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 shadow-lg shadow-sky-500/30">
+                Forstået
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Data for alle 27 kapitler + 5 ad-hoc emner
+        // X og Y repræsenterer procenter på kortet (0-100)
+        // X er nu strengt voksende fra venstre mod højre for kapitel 1-27
+        const chapters = [
+            { id: 1, title: "Kap. 1: Den globale økonomi", x: 4, y: 30 },
+            { id: 2, title: "Kap. 2: Danmarks økonomi", x: 7, y: 60 },
+            { id: 3, title: "Kap. 3: Produktion og indkomst", x: 11, y: 20 },
+            { id: 4, title: "Kap. 4: Prisdannelsen", x: 14, y: 70 },
+            { id: 5, title: "Kap. 5: Husholdninger og forbrug", x: 18, y: 40 },
+            { id: 6, title: "Kap. 6: Arbejdsmarkedet", x: 21, y: 80 },
+            { id: 7, title: "Kap. 7: Offentlig sektor og velfærd", x: 25, y: 25 },
+            { id: 8, title: "Kap. 8: Finanspolitik", x: 28, y: 55 },
+            { id: 9, title: "Kap. 9: Betalingsbalance og kapitalbalance", x: 32, y: 35 },
+            { id: 10, title: "Kap. 10: Valuta", x: 35, y: 65 },
+            { id: 11, title: "Kap. 11: Den finansielle sektor", x: 39, y: 20 },
+            { id: 12, title: "Kap. 12: Pengepolitik", x: 42, y: 75 },
+            { id: 13, title: "Kap. 13: Konkurrenceevneforbedrende politik", x: 46, y: 45 },
+            { id: 14, title: "Kap. 14: Strukturpolitik", x: 50, y: 30 },
+            { id: 15, title: "Kap. 15: Miljøpolitik", x: 53, y: 60 },
+            { id: 16, title: "Kap. 16: Inflation", x: 57, y: 25 },
+            { id: 17, title: "Kap. 17: Makroøkonomisk landeanalyse", x: 60, y: 80 },
+            { id: 18, title: "Kap. 18: Danmarks handel", x: 64, y: 40 },
+            { id: 19, title: "Kap. 19: Konkurrenceevne", x: 67, y: 70 },
+            { id: 20, title: "Kap. 20: Verdenshandelens udvikling og fordeling", x: 71, y: 20 },
+            { id: 21, title: "Kap. 21: Globaliseringen af verdensøkonomien", x: 74, y: 55 },
+            { id: 22, title: "Kap. 22: Teorier om handel", x: 78, y: 35 },
+            { id: 23, title: "Kap. 23: Frihandel kontra protektionisme", x: 81, y: 85 },
+            { id: 24, title: "Kap. 24: Internationale organisationer", x: 85, y: 50 },
+            { id: 25, title: "Kap. 25: Den Europæiske Union", x: 88, y: 25 },
+            { id: 26, title: "Kap. 26: Udviklingsøkonomisk landeanalyse", x: 92, y: 65 },
+            { id: 27, title: "Kap. 27: Økonomisk metode", x: 96, y: 40 },
+            
+            // Ad-hoc emner (tilfældigt placeret)
+            { id: 28, title: "Ad-hoc emne 1", x: 15, y: 45, isAdhoc: true },
+            { id: 29, title: "Ad-hoc emne 2", x: 38, y: 85, isAdhoc: true },
+            { id: 30, title: "Ad-hoc emne 3", x: 62, y: 55, isAdhoc: true },
+            { id: 31, title: "Ad-hoc emne 4", x: 80, y: 15, isAdhoc: true },
+            { id: 32, title: "Ad-hoc emne 5", x: 90, y: 80, isAdhoc: true }
+        ];
+
+        const mapContainer = document.getElementById('map');
+        const mobileList = document.getElementById('mobile-list');
+
+        function initMap() {
+            chapters.forEach(chapter => {
+                // Opret node (punktet på kortet)
+                const node = document.createElement('div');
+                node.className = 'node';
+                
+                // Tilføj adhoc-klasse hvis det er et ad-hoc emne
+                if (chapter.isAdhoc) {
+                    node.classList.add('adhoc');
+                }
+                
+                node.style.left = `${chapter.x}%`;
+                node.style.top = `${chapter.y}%`;
+
+                // Opret tekst-label der vises ved hover
+                const label = document.createElement('div');
+                label.className = 'node-label';
+                label.innerText = chapter.title;
+                node.appendChild(label);
+
+                // Hover effekter for at dæmpe selve kortet, så noden fremstår tydeligere
+                node.addEventListener('mouseenter', () => {
+                    mapContainer.classList.add('dimmed');
+                });
+                node.addEventListener('mouseleave', () => {
+                    mapContainer.classList.remove('dimmed');
+                });
+
+                // Klik event for at åbne kapitel (Her vist som modal for prototype)
+                node.addEventListener('click', () => openModal(chapter.title));
+
+                mapContainer.appendChild(node);
+
+                // Byg mobil-liste
+                const listItem = document.createElement('li');
+                listItem.className = 'bg-slate-800 border border-slate-700 p-3 rounded-lg text-sm font-medium hover:bg-slate-700 cursor-pointer flex justify-between items-center transition-colors';
+                
+                // Gør teksten rød i mobillisten for ad-hoc emner
+                const textColorClass = chapter.isAdhoc ? 'text-red-400' : 'text-white';
+                
+                listItem.innerHTML = `<span class="${textColorClass}">${chapter.title}</span> <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+                listItem.addEventListener('click', () => openModal(chapter.title));
+                mobileList.appendChild(listItem);
+            });
+        }
+
+        const modal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+
+        function openModal(title) {
+            modalTitle.innerText = title;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Luk modal hvis man klikker uden for boksen
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Kør initialisering når siden loades
+        window.onload = initMap;
+    </script>
+</body>
+</html>
