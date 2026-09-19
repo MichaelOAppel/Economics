@@ -111,23 +111,6 @@
                 display: none; /* Skjul hover labels på meget små skærme, brug i stedet liste */
             }
         }
-
-        #custom-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-10 px-4 md:px-8">
@@ -172,24 +155,6 @@
             </ul>
         </div>
     </main>
-
-    <!-- Custom Modal (erstatter alert) -->
-    <div id="custom-modal" class="flex">
-        <div class="bg-slate-800 border border-slate-700 p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all">
-            <div class="flex items-center justify-between mb-6">
-                <h3 id="modal-title" class="text-2xl font-bold text-white">Kapitel titel</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <p class="text-slate-300 mb-8 leading-relaxed">
-                Når hjemmesiden er lagt på GitHub, vil dette klik føre dig direkte til den specifikke Markdown-side for dette kapitel, hvor brødteksten og under-overskrifterne kan læses.
-            </p>
-            <button onclick="closeModal()" class="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 shadow-lg shadow-sky-500/30">
-                Forstået
-            </button>
-        </div>
-    </div>
 
     <script>
         // Data for alle 27 kapitler + 5 ad-hoc emner
@@ -237,6 +202,9 @@
 
         function initMap() {
             chapters.forEach(chapter => {
+                // Generer filnavnet ud fra kapitlets ID (f.eks. "kapitel1.md")
+                const filename = `kapitel${chapter.id}.md`;
+
                 // Opret node (punktet på kortet)
                 const node = document.createElement('div');
                 node.className = 'node';
@@ -284,8 +252,11 @@
                     mapContainer.classList.remove('dimmed');
                 });
 
-                // Klik event for at åbne kapitel (Her vist som modal for prototype)
-                node.addEventListener('click', () => openModal(chapter.title));
+                // --- HER ER ÆNDRINGEN FOR KORTET ---
+                // Klik event navigerer nu til .md filen i stedet for at åbne en modal
+                node.addEventListener('click', () => {
+                    window.location.href = filename;
+                });
 
                 mapContainer.appendChild(node);
 
@@ -297,28 +268,15 @@
                 const textColorClass = chapter.isAdhoc ? 'text-red-400' : 'text-white';
                 
                 listItem.innerHTML = `<span class="${textColorClass}">${chapter.title}</span> <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
-                listItem.addEventListener('click', () => openModal(chapter.title));
+                
+                // --- HER ER ÆNDRINGEN FOR MOBILLISTEN ---
+                // Klik event navigerer nu til .md filen i stedet for at åbne en modal
+                listItem.addEventListener('click', () => {
+                     window.location.href = filename;
+                });
+                
                 mobileList.appendChild(listItem);
             });
-        }
-
-        const modal = document.getElementById('custom-modal');
-        const modalTitle = document.getElementById('modal-title');
-
-        function openModal(title) {
-            modalTitle.innerText = title;
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            modal.style.display = 'none';
-        }
-
-        // Luk modal hvis man klikker uden for boksen
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                closeModal();
-            }
         }
 
         // Kør initialisering når siden loades
