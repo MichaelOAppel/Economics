@@ -27,19 +27,22 @@
             transition: all 0.5s ease;
         }
 
-        .world-map-svg {
+        .world-map-image {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0.15;
-            transition: opacity 0.5s ease;
+            object-fit: cover;
+            opacity: 0.45; /* Dæmpet lidt, så punkterne træder tydeligt frem */
+            transition: opacity 0.5s ease, filter 0.5s ease;
             pointer-events: none;
+            user-select: none;
         }
 
-        .map-container.dimmed .world-map-svg {
-            opacity: 0.05;
+        .map-container.dimmed .world-map-image {
+            opacity: 0.15;
+            filter: grayscale(40%) blur(2px); /* Slører og afdæmper kortet, når man kigger på et kapitel */
         }
 
         .node {
@@ -127,22 +130,8 @@
         
         <!-- Selve kortet -->
         <div id="map" class="map-container ring-1 ring-white/10 relative">
-            <!-- Forenklet SVG verdenskort som baggrund -->
-            <svg class="world-map-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-                <!-- Nordamerika -->
-                <path d="M 150 100 Q 250 80 280 150 T 200 250 Q 150 200 120 150 Z" fill="#475569"/>
-                <!-- Sydamerika -->
-                <path d="M 220 260 Q 280 260 300 350 T 250 450 Q 220 350 220 260 Z" fill="#475569"/>
-                <!-- Europa -->
-                <path d="M 450 80 Q 550 70 550 150 T 480 180 Q 430 150 450 80 Z" fill="#475569"/>
-                <!-- Afrika -->
-                <path d="M 450 200 Q 550 180 580 280 T 520 400 Q 450 300 450 200 Z" fill="#475569"/>
-                <!-- Asien -->
-                <path d="M 560 70 Q 800 50 850 150 T 700 250 Q 600 200 560 70 Z" fill="#475569"/>
-                <!-- Oceanien -->
-                <path d="M 750 350 Q 850 330 880 400 T 800 480 Q 730 400 750 350 Z" fill="#475569"/>
-            </svg>
-
+            <!-- Nyt verdenskort billede (topografisk fra NASA) -->
+            <img src="https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57752/land_shallow_topo_2048.jpg" alt="Verdenskort" class="world-map-image" onerror="this.src='https://placehold.co/1200x675/0f172a/38bdf8?text=Kort+indlæses+ikke'">
             <!-- Noder vil blive indsat her via JavaScript -->
         </div>
 
