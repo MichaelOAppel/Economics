@@ -9,7 +9,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Tailwind slate-900 */
+            background-color: #0f172a; 
             color: #f8fafc;
             overflow-x: hidden;
         }
@@ -34,7 +34,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.45; /* Dæmpet lidt, så punkterne træder tydeligt frem */
+            opacity: 0.45; 
             transition: opacity 0.5s ease, filter 0.5s ease;
             pointer-events: none;
             user-select: none;
@@ -42,14 +42,14 @@
 
         .map-container.dimmed .world-map-image {
             opacity: 0.15;
-            filter: grayscale(40%) blur(2px); /* Slører og afdæmper kortet, når man kigger på et kapitel */
+            filter: grayscale(40%) blur(2px); 
         }
 
         .node {
             position: absolute;
             width: 12px;
             height: 12px;
-            background-color: #38bdf8; /* Tailwind sky-400 */
+            background-color: #38bdf8; 
             border-radius: 50%;
             transform: translate(-50%, -50%);
             cursor: pointer;
@@ -60,7 +60,7 @@
 
         .node:hover {
             transform: translate(-50%, -50%) scale(1.5);
-            background-color: #fcd34d; /* Tailwind amber-300 */
+            background-color: #fcd34d; 
             box-shadow: 0 0 15px #fcd34d, 0 0 30px #fcd34d;
             z-index: 50;
         }
@@ -68,7 +68,6 @@
         .node-label {
             position: absolute;
             top: 150%;
-            /* Positionering håndteres nu 100% sikkert i JavaScript */
             background: rgba(15, 23, 42, 0.95);
             border: 1px solid #334155;
             padding: 0.5rem 1rem;
@@ -91,26 +90,25 @@
         }
 
         .node.adhoc {
-            background-color: #ef4444; /* Tailwind red-500 */
+            background-color: #ef4444; 
             box-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444;
         }
 
         .node.adhoc:hover {
-            background-color: #fca5a5; /* Tailwind red-300 */
+            background-color: #fca5a5; 
             box-shadow: 0 0 15px #fca5a5, 0 0 30px #fca5a5;
         }
 
-        /* Responsive justering for mindre skærme */
         @media (max-width: 768px) {
             .map-container {
                 aspect-ratio: 4 / 3;
             }
             .node {
-                width: 16px; /* Større tap-targets på mobil */
+                width: 16px; 
                 height: 16px;
             }
             .node-label {
-                display: none; /* Skjul hover labels på meget små skærme, brug i stedet liste */
+                display: none; 
             }
         }
     </style>
@@ -128,26 +126,18 @@
 
     <main class="w-full max-w-6xl flex-grow relative flex flex-col items-center">
         
-        <!-- Selve kortet -->
         <div id="map" class="map-container ring-1 ring-white/10 relative">
-            <!-- Nyt verdenskort billede (topografisk fra NASA) -->
             <img src="https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57752/land_shallow_topo_2048.jpg" alt="Verdenskort" class="world-map-image" onerror="this.src='https://placehold.co/1200x675/0f172a/38bdf8?text=Kort+indlæses+ikke'">
-            <!-- Noder vil blive indsat her via JavaScript -->
         </div>
 
-        <!-- Liste til mobilvisning hvor hover er svært -->
         <div class="mt-12 w-full md:hidden">
             <h2 class="text-2xl font-semibold mb-4 text-sky-400">Alle Kapitler</h2>
             <ul id="mobile-list" class="space-y-2">
-                <!-- Bliver fyldt med JS -->
             </ul>
         </div>
     </main>
 
     <script>
-        // Data for alle 27 kapitler + 5 ad-hoc emner
-        // X og Y repræsenterer procenter på kortet (0-100)
-        // X er nu strengt voksende fra venstre mod højre for kapitel 1-27
         const chapters = [
             { id: 1, title: "Kap. 1: Den globale økonomi", x: 4, y: 30 },
             { id: 2, title: "Kap. 2: Danmarks økonomi", x: 7, y: 60 },
@@ -177,7 +167,6 @@
             { id: 26, title: "Kap. 26: Udviklingsøkonomisk landeanalyse", x: 92, y: 65 },
             { id: 27, title: "Kap. 27: Økonomisk metode", x: 96, y: 40 },
             
-            // Ad-hoc emner (tilfældigt placeret)
             { id: 28, title: "Ad-hoc emne 1", x: 15, y: 45, isAdhoc: true },
             { id: 29, title: "Ad-hoc emne 2", x: 38, y: 85, isAdhoc: true },
             { id: 30, title: "Ad-hoc emne 3", x: 62, y: 55, isAdhoc: true },
@@ -190,13 +179,13 @@
 
         function initMap() {
             chapters.forEach(chapter => {
-                // Den opdaterede sti, der linker til undermappen _KapSider
+                
+                // HER ER DEN VIGTIGE ÆNDRING - Gælder nu overalt!
                 const filename = 'KapSider/kapitel' + chapter.id + '.html';
-                // Opret node (punktet på kortet)
+
                 const node = document.createElement('div');
                 node.className = 'node';
                 
-                // Tilføj adhoc-klasse hvis det er et ad-hoc emne
                 if (chapter.isAdhoc) {
                     node.classList.add('adhoc');
                 }
@@ -204,12 +193,10 @@
                 node.style.left = `${chapter.x}%`;
                 node.style.top = `${chapter.y}%`;
 
-                // Opret tekst-label der vises ved hover
                 const label = document.createElement('div');
                 label.className = 'node-label';
                 label.innerText = chapter.title;
                 
-                // Positionering, så boksen altid bliver indenfor skærmen
                 if (chapter.x < 15) {
                     label.style.left = '50%';
                     label.style.transform = 'translateX(0)';
@@ -231,14 +218,12 @@
                     mapContainer.classList.remove('dimmed');
                 });
 
-                // Klik event navigerer til filen i _KapSider mappen
                 node.addEventListener('click', () => {
                     window.location.href = filename;
                 });
 
                 mapContainer.appendChild(node);
 
-                // Byg mobil-liste
                 const listItem = document.createElement('li');
                 listItem.className = 'bg-slate-800 border border-slate-700 p-3 rounded-lg text-sm font-medium hover:bg-slate-700 cursor-pointer flex justify-between items-center transition-colors';
                 
@@ -246,7 +231,7 @@
                 
                 listItem.innerHTML = `<span class="${textColorClass}">${chapter.title}</span> <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
                 
-                // Klik event for mobil-listen
+                // Mobillisten bruger nu også den samme opdaterede sti
                 listItem.addEventListener('click', () => {
                      window.location.href = filename;
                 });
@@ -255,7 +240,6 @@
             });
         }
 
-        // Kør initialisering når siden loades
         window.onload = initMap;
     </script>
 </body>
