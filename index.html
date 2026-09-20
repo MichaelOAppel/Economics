@@ -11,7 +11,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; 
+            background-color: #f8fafc; /* Lys, ren baggrund */
             color: #0f172a;
             overflow-x: hidden;
         }
@@ -30,6 +30,7 @@
             border: 1px solid #f1f5f9;
         }
 
+        /* Verdenskortet gøres mørkegråt med 55% opacity */
         .world-map-image {
             position: absolute;
             top: 0;
@@ -52,7 +53,7 @@
             position: absolute;
             width: 14px;
             height: 14px;
-            /* Neongul med en let orange/mørk kant for synlighed på lys baggrund */
+            /* Neongul med en mørkgylden kant for synlighed på hvid baggrund */
             background-color: #eaff00; 
             border: 1px solid #ca8a04;
             border-radius: 50%;
@@ -68,6 +69,18 @@
             background-color: #facc15; 
             box-shadow: 0 0 0 6px rgba(250, 204, 21, 0.4);
             z-index: 50;
+        }
+
+        /* Ad-hoc punkter er røde */
+        .node.adhoc {
+            background-color: #ef4444; 
+            border: 1px solid #b91c1c;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+        }
+
+        .node.adhoc:hover {
+            background-color: #dc2626; 
+            box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.3);
         }
 
         .node-label {
@@ -92,41 +105,41 @@
             content: '';
             position: absolute;
             bottom: 100%;
-            left: 50%;
-            margin-left: -6px;
             border-width: 6px;
             border-style: solid;
             border-color: transparent transparent #ffffff transparent;
         }
+
+        /* Dynamisk placering afrundet til skærmen */
+        .label-center {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .label-center::after { left: 50%; margin-left: -6px; }
+
+        .label-left {
+            left: 0;
+            transform: translateX(0);
+        }
+        .label-left::after { left: 10px; }
+
+        .label-right {
+            right: 0;
+            transform: translateX(0);
+        }
+        .label-right::after { right: 10px; }
 
         .node:hover .node-label {
             opacity: 1;
             top: 200%;
         }
 
-        /* Ad-hoc punkter er nu røde */
-        .node.adhoc {
-            background-color: #ef4444; 
-            border: 1px solid #b91c1c;
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
-        }
-
-        .node.adhoc:hover {
-            background-color: #dc2626; 
-            box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.3);
-        }
-
         @media (max-width: 768px) {
             .map-container {
                 aspect-ratio: 4 / 3;
             }
-            .node {
-                width: 18px; 
-                height: 18px;
-            }
-            .node-label {
-                display: none; 
-            }
+            .node { width: 18px; height: 18px; }
+            .node-label { display: none; }
         }
     </style>
 </head>
@@ -144,7 +157,7 @@
     <main class="w-full max-w-6xl flex-grow relative flex flex-col items-center">
         
         <div id="map" class="map-container">
-            <img src="billeder/MitVerdenskor.png" alt="Verdenskort" class="world-map-image" id="mapImage" onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#e2e8f0'; this.parentElement.innerHTML+='<div style=\'position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:#64748b; font-size:1.2rem; font-weight:600;\'>Verdenskort pladsholder</div>';">
+            <img src="billeder/MitVerdenskor.png" alt="Verdenskort" class="world-map-image" id="mapImage" onerror="this.src='https://placehold.co/1200x675/f8fafc/64748b?text=Verdenskort+Pladsholder';">
         </div>
 
         <div class="mt-16 w-full md:hidden">
@@ -156,42 +169,41 @@
 
     <script>
         const chapters = [
-            { id: 1, title: "Tema 1: Den globale økonomi", x: 4, y: 30 },
-            { id: 2, title: "Tema 2: Danmarks økonomi", x: 7, y: 60 },
-            { id: 3, title: "Tema 3: Produktion og indkomst", x: 11, y: 20 },
-            { id: 4, title: "Tema 4: Prisdannelsen", x: 14, y: 70 },
-            { id: 5, title: "Tema 5: Husholdninger og forbrug", x: 18, y: 40 },
-            { id: 6, title: "Tema 6: Arbejdsmarkedet", x: 21, y: 80 },
-            { id: 7, title: "Tema 7: Offentlig sektor og velfærd", x: 25, y: 25 },
-            { id: 8, title: "Tema 8: Finanspolitik", x: 28, y: 55 },
-            { id: 9, title: "Tema 9: Betalingsbalance og kapitalbalance", x: 32, y: 35 },
-            { id: 10, title: "Tema 10: Valuta", x: 35, y: 65 },
-            { id: 11, title: "Tema 11: Den finansielle sektor", x: 39, y: 20 },
-            { id: 12, title: "Tema 12: Pengepolitik", x: 42, y: 75 },
-            { id: 13, title: "Tema 13: Konkurrenceevneforbedrende politik", x: 46, y: 45 },
-            { id: 14, title: "Tema 14: Strukturpolitik", x: 50, y: 30 },
-            { id: 15, title: "Tema 15: Miljøpolitik", x: 53, y: 60 },
-            { id: 16, title: "Tema 16: Inflation", x: 57, y: 25 },
-            { id: 17, title: "Tema 17: Makroøkonomisk landeanalyse", x: 60, y: 80 },
-            { id: 18, title: "Tema 18: Danmarks handel", x: 64, y: 40 },
-            { id: 19, title: "Tema 19: Konkurrenceevne", x: 67, y: 70 },
-            { id: 20, title: "Tema 20: Verdenshandelens udvikling og fordeling", x: 71, y: 20 },
-            { id: 21, title: "Tema 21: Globaliseringen af verdensøkonomien", x: 74, y: 55 },
-            { id: 22, title: "Tema 22: Teorier om handel", x: 78, y: 35 },
-            { id: 23, title: "Tema 23: Frihandel kontra protektionisme", x: 81, y: 85 },
-            { id: 24, title: "Tema 24: Internationale organisationer", x: 85, y: 50 },
-            { id: 25, title: "Tema 25: Den Europæiske Union", x: 88, y: 25 },
-            { id: 26, title: "Tema 26: Udviklingsøkonomisk landeanalyse", x: 92, y: 65 },
-            { id: 27, title: "Tema 27: Økonomisk metode", x: 96, y: 40 },
+            // X-koordinater stiger systematisk med ca. 3% per tema fra 3 til 90.
+            { id: 1, title: "Tema 1: Den globale økonomi", x: 3, y: 30 },
+            { id: 2, title: "Tema 2: Danmarks økonomi", x: 6, y: 60 },
+            { id: 3, title: "Tema 3: Produktion og indkomst", x: 9, y: 20 },
+            { id: 4, title: "Tema 4: Prisdannelsen", x: 12, y: 70 },
+            { id: 5, title: "Tema 5: Husholdninger og forbrug", x: 15, y: 40 },
+            { id: 6, title: "Tema 6: Arbejdsmarkedet", x: 18, y: 80 },
+            { id: 7, title: "Tema 7: Offentlig sektor og velfærd", x: 21, y: 25 },
+            { id: 8, title: "Tema 8: Finanspolitik", x: 24, y: 55 },
+            { id: 9, title: "Tema 9: Betalingsbalance og kapitalbalance", x: 27, y: 35 },
+            { id: 10, title: "Tema 10: Valuta", x: 30, y: 65 },
+            { id: 11, title: "Tema 11: Den finansielle sektor", x: 33, y: 20 },
+            { id: 12, title: "Tema 12: Pengepolitik", x: 36, y: 75 },
+            { id: 13, title: "Tema 13: Konkurrenceevneforbedrende politik", x: 39, y: 45 },
+            { id: 14, title: "Tema 14: Strukturpolitik", x: 42, y: 30 },
+            { id: 15, title: "Tema 15: Miljøpolitik", x: 45, y: 60 },
+            { id: 16, title: "Tema 16: Inflation", x: 48, y: 25 },
+            { id: 17, title: "Tema 17: Makroøkonomisk landeanalyse", x: 51, y: 80 },
+            { id: 18, title: "Tema 18: Danmarks handel", x: 54, y: 40 },
+            { id: 19, title: "Tema 19: Konkurrenceevne", x: 57, y: 70 },
+            { id: 20, title: "Tema 20: Verdenshandelens udvikling og fordeling", x: 60, y: 20 },
+            { id: 21, title: "Tema 21: Globaliseringen af verdensøkonomien", x: 63, y: 55 },
+            { id: 22, title: "Tema 22: Teorier om handel", x: 66, y: 35 },
+            { id: 23, title: "Tema 23: Frihandel kontra protektionisme", x: 69, y: 85 },
+            { id: 24, title: "Tema 24: Internationale organisationer", x: 72, y: 50 },
+            { id: 25, title: "Tema 25: Den Europæiske Union", x: 75, y: 25 },
+            { id: 26, title: "Tema 26: Udviklingsøkonomisk landeanalyse", x: 78, y: 65 },
+            { id: 27, title: "Tema 27: Økonomisk metode", x: 81, y: 40 },
+            { id: 28, title: "Tema 28: Grønlands økonomi", x: 84, y: 80 },
+            { id: 29, title: "Tema 29: Public Choice", x: 87, y: 55 },
+            { id: 30, title: "Tema 30: Endogene institutioner", x: 90, y: 30 },
             
-            // De tre nye temaer erstatter de første ad-hoc punkter
-            { id: 28, title: "Tema 28: Grønlands økonomi", x: 15, y: 45 },
-            { id: 29, title: "Tema 29: Public Choice", x: 38, y: 85 },
-            { id: 30, title: "Tema 30: Endogene institutioner", x: 62, y: 55 },
-            
-            // De to resterende ad-hoc punkter (nu røde)
-            { id: 31, title: "Ad-hoc emne 4", x: 80, y: 15, isAdhoc: true },
-            { id: 32, title: "Ad-hoc emne 5", x: 90, y: 80, isAdhoc: true }
+            // De to resterende ad-hoc punkter ligger helt til højre
+            { id: 31, title: "Ad-hoc emne 4", x: 93, y: 15, isAdhoc: true },
+            { id: 32, title: "Ad-hoc emne 5", x: 96, y: 80, isAdhoc: true }
         ];
 
         const mapContainer = document.getElementById('map');
@@ -200,7 +212,7 @@
         function initMap() {
             chapters.forEach(chapter => {
                 
-                // Peger på .html
+                // Peger stensikkert på html-filerne
                 const filename = 'KapSider/kapitel' + chapter.id + '.html';
 
                 const node = document.createElement('div');
@@ -217,15 +229,13 @@
                 label.className = 'node-label';
                 label.innerText = chapter.title;
                 
+                // Intelligent styring af label-placering
                 if (chapter.x < 15) {
-                    label.style.left = '50%';
-                    label.style.transform = 'translateX(0)';
+                    label.classList.add('label-left');
                 } else if (chapter.x > 85) {
-                    label.style.right = '50%';
-                    label.style.transform = 'translateX(0)';
+                    label.classList.add('label-right');
                 } else {
-                    label.style.left = '50%';
-                    label.style.transform = 'translateX(-50%)';
+                    label.classList.add('label-center');
                 }
                 
                 node.appendChild(label);
