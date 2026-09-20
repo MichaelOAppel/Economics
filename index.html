@@ -11,7 +11,6 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            /* Lys, imødekommende baggrund */
             background-color: #f8fafc; 
             color: #0f172a;
             overflow-x: hidden;
@@ -23,7 +22,6 @@
             max-width: 1200px;
             margin: 0 auto;
             aspect-ratio: 16 / 9;
-            /* Ren hvid baggrund til selve kortet */
             background-color: #ffffff;
             border-radius: 1.5rem;
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
@@ -39,14 +37,12 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            /* HER ER ÆNDRINGEN: Opacity 0.55 gør det sorte kort flot mørkegråt mod den hvide baggrund */
             opacity: 0.55; 
             transition: opacity 0.5s ease, filter 0.5s ease;
             pointer-events: none;
             user-select: none;
         }
 
-        /* Effekt når man hovrer over et punkt - toner kortet endnu mere ned */
         .map-container.dimmed .world-map-image {
             opacity: 0.2;
             filter: blur(1px); 
@@ -56,19 +52,21 @@
             position: absolute;
             width: 14px;
             height: 14px;
-            background-color: #4f46e5; 
+            /* Neongul med en let orange/mørk kant for synlighed på lys baggrund */
+            background-color: #eaff00; 
+            border: 1px solid #ca8a04;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+            box-shadow: 0 0 0 4px rgba(234, 255, 0, 0.3);
             z-index: 10;
         }
 
         .node:hover {
             transform: translate(-50%, -50%) scale(1.6);
-            background-color: #0d9488; 
-            box-shadow: 0 0 0 6px rgba(13, 148, 136, 0.3);
+            background-color: #facc15; 
+            box-shadow: 0 0 0 6px rgba(250, 204, 21, 0.4);
             z-index: 50;
         }
 
@@ -106,14 +104,16 @@
             top: 200%;
         }
 
+        /* Ad-hoc punkter er nu røde */
         .node.adhoc {
-            background-color: #f97316; 
-            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
+            background-color: #ef4444; 
+            border: 1px solid #b91c1c;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
         }
 
         .node.adhoc:hover {
-            background-color: #ea580c; 
-            box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.3);
+            background-color: #dc2626; 
+            box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.3);
         }
 
         @media (max-width: 768px) {
@@ -137,15 +137,14 @@
             Samfundsøkonomi
         </h1>
         <p class="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
-            Udforsk de 27 temaer i den globale og danske økonomi. Før musen over punkterne på verdenskortet for at dykke ned i de enkelte temaer.
+            Udforsk de 30 temaer i den globale og danske økonomi. Før musen over punkterne på verdenskortet for at dykke ned i de enkelte temaer.
         </p>
     </header>
 
     <main class="w-full max-w-6xl flex-grow relative flex flex-col items-center">
         
         <div id="map" class="map-container">
-            <!-- Peger nu korrekt på dit billede på GitHub -->
-            <img src="billeder/MitVerdenskor.png" alt="Verdenskort" class="world-map-image" id="mapImage">
+            <img src="billeder/MitVerdenskor.png" alt="Verdenskort" class="world-map-image" id="mapImage" onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#e2e8f0'; this.parentElement.innerHTML+='<div style=\'position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:#64748b; font-size:1.2rem; font-weight:600;\'>Verdenskort pladsholder</div>';">
         </div>
 
         <div class="mt-16 w-full md:hidden">
@@ -156,7 +155,6 @@
     </main>
 
     <script>
-        // Data for kapitler med "Tema" i titlerne
         const chapters = [
             { id: 1, title: "Tema 1: Den globale økonomi", x: 4, y: 30 },
             { id: 2, title: "Tema 2: Danmarks økonomi", x: 7, y: 60 },
@@ -186,9 +184,12 @@
             { id: 26, title: "Tema 26: Udviklingsøkonomisk landeanalyse", x: 92, y: 65 },
             { id: 27, title: "Tema 27: Økonomisk metode", x: 96, y: 40 },
             
-            { id: 28, title: "Ad-hoc emne 1", x: 15, y: 45, isAdhoc: true },
-            { id: 29, title: "Ad-hoc emne 2", x: 38, y: 85, isAdhoc: true },
-            { id: 30, title: "Ad-hoc emne 3", x: 62, y: 55, isAdhoc: true },
+            // De tre nye temaer erstatter de første ad-hoc punkter
+            { id: 28, title: "Tema 28: Grønlands økonomi", x: 15, y: 45 },
+            { id: 29, title: "Tema 29: Public Choice", x: 38, y: 85 },
+            { id: 30, title: "Tema 30: Endogene institutioner", x: 62, y: 55 },
+            
+            // De to resterende ad-hoc punkter (nu røde)
             { id: 31, title: "Ad-hoc emne 4", x: 80, y: 15, isAdhoc: true },
             { id: 32, title: "Ad-hoc emne 5", x: 90, y: 80, isAdhoc: true }
         ];
@@ -199,7 +200,7 @@
         function initMap() {
             chapters.forEach(chapter => {
                 
-                // Peger stadig på filnavnene "kapitelX.html" i mappen "KapSider"
+                // Peger på .html
                 const filename = 'KapSider/kapitel' + chapter.id + '.html';
 
                 const node = document.createElement('div');
@@ -246,9 +247,10 @@
                 const listItem = document.createElement('li');
                 listItem.className = 'bg-white border border-slate-200 shadow-sm p-4 rounded-xl text-sm md:text-base font-semibold hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors';
                 
-                const textColorClass = chapter.isAdhoc ? 'text-orange-600' : 'text-slate-700';
+                const textColorClass = chapter.isAdhoc ? 'text-red-600' : 'text-slate-700';
+                const arrowColorClass = chapter.isAdhoc ? 'text-red-500' : 'text-yellow-500';
                 
-                listItem.innerHTML = `<span class="${textColorClass}">${chapter.title}</span> <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+                listItem.innerHTML = `<span class="${textColorClass}">${chapter.title}</span> <svg class="w-5 h-5 ${arrowColorClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
                 
                 listItem.addEventListener('click', () => {
                      window.location.href = filename;
