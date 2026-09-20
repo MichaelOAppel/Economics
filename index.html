@@ -23,7 +23,7 @@
             max-width: 1200px;
             margin: 0 auto;
             aspect-ratio: 16 / 9;
-            /* Ren hvid baggrund til selve kortet med en meget blød skygge */
+            /* Ren hvid baggrund til selve kortet */
             background-color: #ffffff;
             border-radius: 1.5rem;
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
@@ -38,17 +38,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Sikrer at hele kortet vises korrekt proportioneret */
-            /* En let gennemsigtighed gør det sorte kort lidt mere sofistikeret */
-            opacity: 0.85; 
+            object-fit: contain;
+            /* HER ER ÆNDRINGEN: Opacity 0.55 gør det sorte kort flot mørkegråt mod den hvide baggrund */
+            opacity: 0.55; 
             transition: opacity 0.5s ease, filter 0.5s ease;
             pointer-events: none;
             user-select: none;
         }
 
-        /* Effekt når man hovrer over et punkt - toner kortet lidt ned */
+        /* Effekt når man hovrer over et punkt - toner kortet endnu mere ned */
         .map-container.dimmed .world-map-image {
-            opacity: 0.3;
+            opacity: 0.2;
             filter: blur(1px); 
         }
 
@@ -56,19 +56,17 @@
             position: absolute;
             width: 14px;
             height: 14px;
-            /* En frisk, moderne blå/indigo farve */
             background-color: #4f46e5; 
             border-radius: 50%;
             transform: translate(-50%, -50%);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2); /* Blød "halo" effekt */
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
             z-index: 10;
         }
 
         .node:hover {
             transform: translate(-50%, -50%) scale(1.6);
-            /* Skifter til en frisk grøn/teal farve ved hover */
             background-color: #0d9488; 
             box-shadow: 0 0 0 6px rgba(13, 148, 136, 0.3);
             z-index: 50;
@@ -77,7 +75,6 @@
         .node-label {
             position: absolute;
             top: 150%;
-            /* Lys, skarp boks til teksten */
             background: #ffffff;
             border: 1px solid #e2e8f0;
             padding: 0.5rem 1rem;
@@ -88,12 +85,11 @@
             transition: opacity 0.3s ease, top 0.3s ease, box-shadow 0.3s ease;
             font-size: 0.875rem;
             font-weight: 600;
-            color: #1e293b; /* Mørk tekst for læsbarhed */
+            color: #1e293b;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             z-index: 40;
         }
 
-        /* Lille "pil" øverst på boksen */
         .node-label::after {
             content: '';
             position: absolute;
@@ -110,7 +106,6 @@
             top: 200%;
         }
 
-        /* Specifik styling for Ad-hoc emner (orange/koral farve) */
         .node.adhoc {
             background-color: #f97316; 
             box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
@@ -142,54 +137,54 @@
             Samfundsøkonomi
         </h1>
         <p class="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
-            Udforsk de 27 temaer i den globale og danske økonomi. Før musen over punkterne på verdenskortet for at dykke ned i de enkelte kapitler.
+            Udforsk de 27 temaer i den globale og danske økonomi. Før musen over punkterne på verdenskortet for at dykke ned i de enkelte temaer.
         </p>
     </header>
 
     <main class="w-full max-w-6xl flex-grow relative flex flex-col items-center">
         
         <div id="map" class="map-container">
-            <!-- Her bruger vi billedet 'MitVerdenskor.png' fra billeder-mappen -->
-            <img src="billeder/MitVerdenskor.png" alt="Verdenskort" class="world-map-image" onerror="this.src='https://placehold.co/1200x675/ffffff/e2e8f0?text=Kort+indlæses+ikke'">
+            <!-- Peger nu korrekt på dit billede på GitHub -->
+            <img src="billeder/MitVerdenskor.png" alt="Verdenskort" class="world-map-image" id="mapImage">
         </div>
 
         <div class="mt-16 w-full md:hidden">
-            <h2 class="text-2xl font-bold mb-6 text-slate-800 border-b pb-2 border-slate-200">Alle Kapitler</h2>
+            <h2 class="text-2xl font-bold mb-6 text-slate-800 border-b pb-2 border-slate-200">Alle Temaer</h2>
             <ul id="mobile-list" class="space-y-3">
             </ul>
         </div>
     </main>
 
     <script>
-        // Samme data for kapitler som tidligere
+        // Data for kapitler med "Tema" i titlerne
         const chapters = [
-            { id: 1, title: "Kap. 1: Den globale økonomi", x: 4, y: 30 },
-            { id: 2, title: "Kap. 2: Danmarks økonomi", x: 7, y: 60 },
-            { id: 3, title: "Kap. 3: Produktion og indkomst", x: 11, y: 20 },
-            { id: 4, title: "Kap. 4: Prisdannelsen", x: 14, y: 70 },
-            { id: 5, title: "Kap. 5: Husholdninger og forbrug", x: 18, y: 40 },
-            { id: 6, title: "Kap. 6: Arbejdsmarkedet", x: 21, y: 80 },
-            { id: 7, title: "Kap. 7: Offentlig sektor og velfærd", x: 25, y: 25 },
-            { id: 8, title: "Kap. 8: Finanspolitik", x: 28, y: 55 },
-            { id: 9, title: "Kap. 9: Betalingsbalance og kapitalbalance", x: 32, y: 35 },
-            { id: 10, title: "Kap. 10: Valuta", x: 35, y: 65 },
-            { id: 11, title: "Kap. 11: Den finansielle sektor", x: 39, y: 20 },
-            { id: 12, title: "Kap. 12: Pengepolitik", x: 42, y: 75 },
-            { id: 13, title: "Kap. 13: Konkurrenceevneforbedrende politik", x: 46, y: 45 },
-            { id: 14, title: "Kap. 14: Strukturpolitik", x: 50, y: 30 },
-            { id: 15, title: "Kap. 15: Miljøpolitik", x: 53, y: 60 },
-            { id: 16, title: "Kap. 16: Inflation", x: 57, y: 25 },
-            { id: 17, title: "Kap. 17: Makroøkonomisk landeanalyse", x: 60, y: 80 },
-            { id: 18, title: "Kap. 18: Danmarks handel", x: 64, y: 40 },
-            { id: 19, title: "Kap. 19: Konkurrenceevne", x: 67, y: 70 },
-            { id: 20, title: "Kap. 20: Verdenshandelens udvikling og fordeling", x: 71, y: 20 },
-            { id: 21, title: "Kap. 21: Globaliseringen af verdensøkonomien", x: 74, y: 55 },
-            { id: 22, title: "Kap. 22: Teorier om handel", x: 78, y: 35 },
-            { id: 23, title: "Kap. 23: Frihandel kontra protektionisme", x: 81, y: 85 },
-            { id: 24, title: "Kap. 24: Internationale organisationer", x: 85, y: 50 },
-            { id: 25, title: "Kap. 25: Den Europæiske Union", x: 88, y: 25 },
-            { id: 26, title: "Kap. 26: Udviklingsøkonomisk landeanalyse", x: 92, y: 65 },
-            { id: 27, title: "Kap. 27: Økonomisk metode", x: 96, y: 40 },
+            { id: 1, title: "Tema 1: Den globale økonomi", x: 4, y: 30 },
+            { id: 2, title: "Tema 2: Danmarks økonomi", x: 7, y: 60 },
+            { id: 3, title: "Tema 3: Produktion og indkomst", x: 11, y: 20 },
+            { id: 4, title: "Tema 4: Prisdannelsen", x: 14, y: 70 },
+            { id: 5, title: "Tema 5: Husholdninger og forbrug", x: 18, y: 40 },
+            { id: 6, title: "Tema 6: Arbejdsmarkedet", x: 21, y: 80 },
+            { id: 7, title: "Tema 7: Offentlig sektor og velfærd", x: 25, y: 25 },
+            { id: 8, title: "Tema 8: Finanspolitik", x: 28, y: 55 },
+            { id: 9, title: "Tema 9: Betalingsbalance og kapitalbalance", x: 32, y: 35 },
+            { id: 10, title: "Tema 10: Valuta", x: 35, y: 65 },
+            { id: 11, title: "Tema 11: Den finansielle sektor", x: 39, y: 20 },
+            { id: 12, title: "Tema 12: Pengepolitik", x: 42, y: 75 },
+            { id: 13, title: "Tema 13: Konkurrenceevneforbedrende politik", x: 46, y: 45 },
+            { id: 14, title: "Tema 14: Strukturpolitik", x: 50, y: 30 },
+            { id: 15, title: "Tema 15: Miljøpolitik", x: 53, y: 60 },
+            { id: 16, title: "Tema 16: Inflation", x: 57, y: 25 },
+            { id: 17, title: "Tema 17: Makroøkonomisk landeanalyse", x: 60, y: 80 },
+            { id: 18, title: "Tema 18: Danmarks handel", x: 64, y: 40 },
+            { id: 19, title: "Tema 19: Konkurrenceevne", x: 67, y: 70 },
+            { id: 20, title: "Tema 20: Verdenshandelens udvikling og fordeling", x: 71, y: 20 },
+            { id: 21, title: "Tema 21: Globaliseringen af verdensøkonomien", x: 74, y: 55 },
+            { id: 22, title: "Tema 22: Teorier om handel", x: 78, y: 35 },
+            { id: 23, title: "Tema 23: Frihandel kontra protektionisme", x: 81, y: 85 },
+            { id: 24, title: "Tema 24: Internationale organisationer", x: 85, y: 50 },
+            { id: 25, title: "Tema 25: Den Europæiske Union", x: 88, y: 25 },
+            { id: 26, title: "Tema 26: Udviklingsøkonomisk landeanalyse", x: 92, y: 65 },
+            { id: 27, title: "Tema 27: Økonomisk metode", x: 96, y: 40 },
             
             { id: 28, title: "Ad-hoc emne 1", x: 15, y: 45, isAdhoc: true },
             { id: 29, title: "Ad-hoc emne 2", x: 38, y: 85, isAdhoc: true },
@@ -204,10 +199,9 @@
         function initMap() {
             chapters.forEach(chapter => {
                 
-                // Opdateret sti til HTML-filerne i mappen KapSider
+                // Peger stadig på filnavnene "kapitelX.html" i mappen "KapSider"
                 const filename = 'KapSider/kapitel' + chapter.id + '.html';
 
-                // Opretter noden
                 const node = document.createElement('div');
                 node.className = 'node';
                 
@@ -218,12 +212,10 @@
                 node.style.left = `${chapter.x}%`;
                 node.style.top = `${chapter.y}%`;
 
-                // Opretter tooltip label
                 const label = document.createElement('div');
                 label.className = 'node-label';
                 label.innerText = chapter.title;
                 
-                // Justerer label position for kanterne
                 if (chapter.x < 15) {
                     label.style.left = '50%';
                     label.style.transform = 'translateX(0)';
@@ -237,7 +229,6 @@
                 
                 node.appendChild(label);
 
-                // Hover effekter for selve kortet
                 node.addEventListener('mouseenter', () => {
                     mapContainer.classList.add('dimmed');
                 });
@@ -246,16 +237,13 @@
                     mapContainer.classList.remove('dimmed');
                 });
 
-                // Klik event der fører til kapitlet
                 node.addEventListener('click', () => {
                     window.location.href = filename;
                 });
 
                 mapContainer.appendChild(node);
 
-                // Opretter listeelement til mobilvisning
                 const listItem = document.createElement('li');
-                // Lys styling til mobil-listen
                 listItem.className = 'bg-white border border-slate-200 shadow-sm p-4 rounded-xl text-sm md:text-base font-semibold hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors';
                 
                 const textColorClass = chapter.isAdhoc ? 'text-orange-600' : 'text-slate-700';
