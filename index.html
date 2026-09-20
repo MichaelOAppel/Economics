@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Samfundsøkonomi - Interaktivt Overblik</title>
+    <!-- Henter Tailwind CSS til moderne, responsiv styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; 
-            color: #f8fafc;
+            /* Lys, imødekommende baggrund */
+            background-color: #f8fafc; 
+            color: #0f172a;
             overflow-x: hidden;
         }
 
@@ -20,11 +23,13 @@
             max-width: 1200px;
             margin: 0 auto;
             aspect-ratio: 16 / 9;
-            background-image: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-            border-radius: 1rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            /* Ren hvid baggrund til selve kortet med en meget blød skygge */
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
             overflow: hidden;
             transition: all 0.5s ease;
+            border: 1px solid #f1f5f9;
         }
 
         .world-map-image {
@@ -33,55 +38,71 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            opacity: 0.45; 
+            object-fit: contain; /* Sikrer at hele kortet vises korrekt proportioneret */
+            /* En let gennemsigtighed gør det sorte kort lidt mere sofistikeret */
+            opacity: 0.85; 
             transition: opacity 0.5s ease, filter 0.5s ease;
             pointer-events: none;
             user-select: none;
         }
 
+        /* Effekt når man hovrer over et punkt - toner kortet lidt ned */
         .map-container.dimmed .world-map-image {
-            opacity: 0.15;
-            filter: grayscale(40%) blur(2px); 
+            opacity: 0.3;
+            filter: blur(1px); 
         }
 
         .node {
             position: absolute;
-            width: 12px;
-            height: 12px;
-            background-color: #38bdf8; 
+            width: 14px;
+            height: 14px;
+            /* En frisk, moderne blå/indigo farve */
+            background-color: #4f46e5; 
             border-radius: 50%;
             transform: translate(-50%, -50%);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px #38bdf8, 0 0 20px #38bdf8;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2); /* Blød "halo" effekt */
             z-index: 10;
         }
 
         .node:hover {
-            transform: translate(-50%, -50%) scale(1.5);
-            background-color: #fcd34d; 
-            box-shadow: 0 0 15px #fcd34d, 0 0 30px #fcd34d;
+            transform: translate(-50%, -50%) scale(1.6);
+            /* Skifter til en frisk grøn/teal farve ved hover */
+            background-color: #0d9488; 
+            box-shadow: 0 0 0 6px rgba(13, 148, 136, 0.3);
             z-index: 50;
         }
 
         .node-label {
             position: absolute;
             top: 150%;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid #334155;
+            /* Lys, skarp boks til teksten */
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease, top 0.3s ease;
+            transition: opacity 0.3s ease, top 0.3s ease, box-shadow 0.3s ease;
             font-size: 0.875rem;
             font-weight: 600;
-            color: #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            color: #1e293b; /* Mørk tekst for læsbarhed */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             z-index: 40;
-            backdrop-filter: blur(4px);
+        }
+
+        /* Lille "pil" øverst på boksen */
+        .node-label::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent #ffffff transparent;
         }
 
         .node:hover .node-label {
@@ -89,14 +110,15 @@
             top: 200%;
         }
 
+        /* Specifik styling for Ad-hoc emner (orange/koral farve) */
         .node.adhoc {
-            background-color: #ef4444; 
-            box-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444;
+            background-color: #f97316; 
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
         }
 
         .node.adhoc:hover {
-            background-color: #fca5a5; 
-            box-shadow: 0 0 15px #fca5a5, 0 0 30px #fca5a5;
+            background-color: #ea580c; 
+            box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.3);
         }
 
         @media (max-width: 768px) {
@@ -104,8 +126,8 @@
                 aspect-ratio: 4 / 3;
             }
             .node {
-                width: 16px; 
-                height: 16px;
+                width: 18px; 
+                height: 18px;
             }
             .node-label {
                 display: none; 
@@ -116,28 +138,30 @@
 <body class="min-h-screen flex flex-col items-center py-10 px-4 md:px-8">
 
     <header class="w-full max-w-6xl mb-12 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-emerald-400 mb-4 tracking-tight">
+        <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight">
             Samfundsøkonomi
         </h1>
-        <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+        <p class="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
             Udforsk de 27 temaer i den globale og danske økonomi. Før musen over punkterne på verdenskortet for at dykke ned i de enkelte kapitler.
         </p>
     </header>
 
     <main class="w-full max-w-6xl flex-grow relative flex flex-col items-center">
         
-        <div id="map" class="map-container ring-1 ring-white/10 relative">
-            <img src="https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57752/land_shallow_topo_2048.jpg" alt="Verdenskort" class="world-map-image" onerror="this.src='https://placehold.co/1200x675/0f172a/38bdf8?text=Kort+indlæses+ikke'">
+        <div id="map" class="map-container">
+            <!-- Her bruger vi billedet 'MitVerdenskor.png' fra billeder-mappen -->
+            <img src="billeder/MitVerdenskor.png" alt="Verdenskort" class="world-map-image" onerror="this.src='https://placehold.co/1200x675/ffffff/e2e8f0?text=Kort+indlæses+ikke'">
         </div>
 
-        <div class="mt-12 w-full md:hidden">
-            <h2 class="text-2xl font-semibold mb-4 text-sky-400">Alle Kapitler</h2>
-            <ul id="mobile-list" class="space-y-2">
+        <div class="mt-16 w-full md:hidden">
+            <h2 class="text-2xl font-bold mb-6 text-slate-800 border-b pb-2 border-slate-200">Alle Kapitler</h2>
+            <ul id="mobile-list" class="space-y-3">
             </ul>
         </div>
     </main>
 
     <script>
+        // Samme data for kapitler som tidligere
         const chapters = [
             { id: 1, title: "Kap. 1: Den globale økonomi", x: 4, y: 30 },
             { id: 2, title: "Kap. 2: Danmarks økonomi", x: 7, y: 60 },
@@ -180,9 +204,10 @@
         function initMap() {
             chapters.forEach(chapter => {
                 
-                // HER ER DEN VIGTIGE ÆNDRING - Gælder nu overalt!
+                // Opdateret sti til HTML-filerne i mappen KapSider
                 const filename = 'KapSider/kapitel' + chapter.id + '.html';
 
+                // Opretter noden
                 const node = document.createElement('div');
                 node.className = 'node';
                 
@@ -193,10 +218,12 @@
                 node.style.left = `${chapter.x}%`;
                 node.style.top = `${chapter.y}%`;
 
+                // Opretter tooltip label
                 const label = document.createElement('div');
                 label.className = 'node-label';
                 label.innerText = chapter.title;
                 
+                // Justerer label position for kanterne
                 if (chapter.x < 15) {
                     label.style.left = '50%';
                     label.style.transform = 'translateX(0)';
@@ -210,6 +237,7 @@
                 
                 node.appendChild(label);
 
+                // Hover effekter for selve kortet
                 node.addEventListener('mouseenter', () => {
                     mapContainer.classList.add('dimmed');
                 });
@@ -218,20 +246,22 @@
                     mapContainer.classList.remove('dimmed');
                 });
 
+                // Klik event der fører til kapitlet
                 node.addEventListener('click', () => {
                     window.location.href = filename;
                 });
 
                 mapContainer.appendChild(node);
 
+                // Opretter listeelement til mobilvisning
                 const listItem = document.createElement('li');
-                listItem.className = 'bg-slate-800 border border-slate-700 p-3 rounded-lg text-sm font-medium hover:bg-slate-700 cursor-pointer flex justify-between items-center transition-colors';
+                // Lys styling til mobil-listen
+                listItem.className = 'bg-white border border-slate-200 shadow-sm p-4 rounded-xl text-sm md:text-base font-semibold hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors';
                 
-                const textColorClass = chapter.isAdhoc ? 'text-red-400' : 'text-white';
+                const textColorClass = chapter.isAdhoc ? 'text-orange-600' : 'text-slate-700';
                 
-                listItem.innerHTML = `<span class="${textColorClass}">${chapter.title}</span> <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+                listItem.innerHTML = `<span class="${textColorClass}">${chapter.title}</span> <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
                 
-                // Mobillisten bruger nu også den samme opdaterede sti
                 listItem.addEventListener('click', () => {
                      window.location.href = filename;
                 });
