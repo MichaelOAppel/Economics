@@ -190,8 +190,9 @@
 
         function initMap() {
             chapters.forEach(chapter => {
-                // Generer filnavnet ud fra kapitlets ID (f.eks. "kapitel1.md")
-                const filename = \_KapSider/kapitel${chapter.id}.md`;'
+                // Den opdaterede sti, der linker til undermappen _KapSider
+                const filename = `_KapSider/kapitel${chapter.id}.md`;
+
                 // Opret node (punktet på kortet)
                 const node = document.createElement('div');
                 node.className = 'node';
@@ -209,25 +210,20 @@
                 label.className = 'node-label';
                 label.innerText = chapter.title;
                 
-                // --- DEN NYE SKUDSIKRE POSITIONERING ---
-                // I stedet for at gætte bredden på hover, sætter vi det fast fra start baseret på X-koordinaten.
+                // Positionering, så boksen altid bliver indenfor skærmen
                 if (chapter.x < 15) {
-                    // Er punktet langt til venstre (fx kap 1 og 2)? Lad teksten gå ud mod højre.
                     label.style.left = '50%';
                     label.style.transform = 'translateX(0)';
                 } else if (chapter.x > 85) {
-                    // Er punktet langt til højre? Lad teksten gå ud mod venstre.
                     label.style.right = '50%';
                     label.style.transform = 'translateX(0)';
                 } else {
-                    // Er punktet i midten? Centrer teksten som normalt.
                     label.style.left = '50%';
                     label.style.transform = 'translateX(-50%)';
                 }
                 
                 node.appendChild(label);
 
-                // Nu nøjes vi med at gøre baggrunden mørkere ved hover
                 node.addEventListener('mouseenter', () => {
                     mapContainer.classList.add('dimmed');
                 });
@@ -236,8 +232,7 @@
                     mapContainer.classList.remove('dimmed');
                 });
 
-                // --- HER ER ÆNDRINGEN FOR KORTET ---
-                // Klik event navigerer nu til .md filen i stedet for at åbne en modal
+                // Klik event navigerer til filen i _KapSider mappen
                 node.addEventListener('click', () => {
                     window.location.href = filename;
                 });
@@ -248,13 +243,11 @@
                 const listItem = document.createElement('li');
                 listItem.className = 'bg-slate-800 border border-slate-700 p-3 rounded-lg text-sm font-medium hover:bg-slate-700 cursor-pointer flex justify-between items-center transition-colors';
                 
-                // Gør teksten rød i mobillisten for ad-hoc emner
                 const textColorClass = chapter.isAdhoc ? 'text-red-400' : 'text-white';
                 
                 listItem.innerHTML = `<span class="${textColorClass}">${chapter.title}</span> <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
                 
-                // --- HER ER ÆNDRINGEN FOR MOBILLISTEN ---
-                // Klik event navigerer nu til .md filen i stedet for at åbne en modal
+                // Klik event for mobil-listen
                 listItem.addEventListener('click', () => {
                      window.location.href = filename;
                 });
