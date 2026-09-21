@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tema 6: Arbejdsmarkedet - Samfundsøkonomi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .sub-menu { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease-in-out; }
+        .menu-item:hover .sub-menu { max-height: 500px; opacity: 1; margin-top: 0.5rem; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+    <!-- Menu -->
+    <aside class="w-full md:w-80 bg-white border-r border-slate-200 shadow-sm flex flex-col md:h-screen sticky top-0 overflow-y-auto z-10 shrink-0">
+        <div class="p-6 border-b border-slate-100">
+            <a href="../index.html" class="flex items-center text-blue-900 hover:text-blue-700 font-bold transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Tilbage til hovedmenu
+            </a>
+        </div>
+        <nav class="p-6 flex-grow">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Navigation</h3>
+            <ul class="space-y-5">
+                <li class="menu-item">
+                    <a href="#" class="block font-bold text-blue-900 text-lg">Tema 6: Arbejdsmarkedet</a>
+                    <ul class="sub-menu pl-4 border-l-2 border-blue-200 space-y-3 text-sm text-slate-600 mt-2">
+                        <li><a href="#afsnit-1" class="hover:text-blue-900 transition-colors">Afsnit 1</a></li>
+                        <li><a href="#afsnit-2" class="hover:text-blue-900 transition-colors">Afsnit 2</a></li>
+                        <li><a href="#afsnit-3" class="hover:text-blue-900 transition-colors font-semibold text-indigo-600">Et kritisk blik på pensum</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Hovedindhold -->
+    <main class="flex-1 p-8 md:p-16 lg:p-24 overflow-y-auto">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-slate-900 mb-16 tracking-tight leading-tight">
+                Tema 6: Arbejdsmarkedet
+            </h1>
+
+            <section id="afsnit-1" class="mb-20">
+                <h2 class="text-3xl font-bold text-slate-800 mb-8 pb-3 border-b-2 border-sky-100">
+                    Afsnit 1
+                </h2>
+                <div class="bg-white border-2 border-dashed border-slate-300 rounded-xl p-10 text-center shadow-sm">
+                    <p class="text-slate-500 italic text-lg">[ Her skal der komme brødtekst og figurer ]</p>
+                </div>
+            </section>
+
+            <section id="afsnit-2" class="mb-20">
+                <h2 class="text-3xl font-bold text-slate-800 mb-8 pb-3 border-b-2 border-sky-100">
+                    Afsnit 2
+                </h2>
+                <div class="bg-white border-2 border-dashed border-slate-300 rounded-xl p-10 text-center shadow-sm">
+                    <p class="text-slate-500 italic text-lg">[ Her skal der komme brødtekst og figurer ]</p>
+                </div>
+            </section>
+
+            <section id="afsnit-3" class="mb-20">
+                <h2 class="text-3xl font-bold text-slate-800 mb-8 pb-3 border-b-2 border-indigo-200">
+                    Et kritisk blik på pensum
+                </h2>
+                <div class="bg-indigo-50 border-2 border-dashed border-indigo-200 rounded-xl p-10 text-center shadow-sm">
+                    <p class="text-slate-600 italic text-lg">[ Her kan eleven/læseren reflektere kritisk over temaets teorier og modeller ]</p>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
