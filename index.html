@@ -160,54 +160,21 @@
             <img src="billeder/MitVerdenskor.png" alt="Verdenskort" class="world-map-image" id="mapImage" onerror="this.src='https://placehold.co/1200x675/f8fafc/64748b?text=Verdenskort+Pladsholder';">
         </div>
 
-        <div class="mt-16 w-full md:hidden">
-            <h2 class="text-2xl font-bold mb-6 text-slate-800 border-b pb-2 border-slate-200">Alle Temaer</h2>
-            <ul id="mobile-list" class="space-y-3">
+        <div class="mt-16 w-full max-w-2xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm p-8 md:p-10">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 text-center md:text-left">
+                Alle Temaer
+            </h2>
+            <ul id="theme-list" class="space-y-4">
             </ul>
         </div>
     </main>
 
+    <!-- chapters-arrayet (temaer, koordinater og underafsnit) hentes nu fra js/temaer.js,
+         som også bruges af kapitel-sidernes venstremenu -->
+    <script src="js/temaer.js"></script>
     <script>
-        const chapters = [
-            // X-koordinater stiger systematisk med ca. 3% per tema fra 3 til 90.
-            { id: 1, title: "Tema 1: Den globale økonomi", x: 3, y: 30 },
-            { id: 2, title: "Tema 2: Danmarks økonomi", x: 6, y: 60 },
-            { id: 3, title: "Tema 3: Produktion og indkomst", x: 9, y: 20 },
-            { id: 4, title: "Tema 4: Prisdannelsen", x: 12, y: 70 },
-            { id: 5, title: "Tema 5: Husholdninger og forbrug", x: 15, y: 40 },
-            { id: 6, title: "Tema 6: Arbejdsmarkedet", x: 18, y: 80 },
-            { id: 7, title: "Tema 7: Offentlig sektor og velfærd", x: 21, y: 25 },
-            { id: 8, title: "Tema 8: Finanspolitik", x: 24, y: 55 },
-            { id: 9, title: "Tema 9: Betalingsbalance og kapitalbalance", x: 27, y: 35 },
-            { id: 10, title: "Tema 10: Valuta", x: 30, y: 65 },
-            { id: 11, title: "Tema 11: Den finansielle sektor", x: 33, y: 20 },
-            { id: 12, title: "Tema 12: Pengepolitik", x: 36, y: 75 },
-            { id: 13, title: "Tema 13: Konkurrenceevneforbedrende politik", x: 39, y: 45 },
-            { id: 14, title: "Tema 14: Strukturpolitik", x: 42, y: 30 },
-            { id: 15, title: "Tema 15: Miljøpolitik", x: 45, y: 60 },
-            { id: 16, title: "Tema 16: Inflation", x: 48, y: 25 },
-            { id: 17, title: "Tema 17: Makroøkonomisk landeanalyse", x: 51, y: 80 },
-            { id: 18, title: "Tema 18: Danmarks handel", x: 54, y: 40 },
-            { id: 19, title: "Tema 19: Konkurrenceevne", x: 57, y: 70 },
-            { id: 20, title: "Tema 20: Verdenshandelens udvikling og fordeling", x: 60, y: 20 },
-            { id: 21, title: "Tema 21: Globaliseringen af verdensøkonomien", x: 63, y: 55 },
-            { id: 22, title: "Tema 22: Teorier om handel", x: 66, y: 35 },
-            { id: 23, title: "Tema 23: Frihandel kontra protektionisme", x: 69, y: 85 },
-            { id: 24, title: "Tema 24: Internationale organisationer", x: 72, y: 50 },
-            { id: 25, title: "Tema 25: Den Europæiske Union", x: 75, y: 25 },
-            { id: 26, title: "Tema 26: Udviklingsøkonomisk landeanalyse", x: 78, y: 65 },
-            { id: 27, title: "Tema 27: Økonomisk metode", x: 81, y: 40 },
-            { id: 28, title: "Tema 28: Grønlands økonomi", x: 84, y: 80 },
-            { id: 29, title: "Tema 29: Public Choice", x: 87, y: 55 },
-            { id: 30, title: "Tema 30: Endogene institutioner", x: 90, y: 30 },
-            
-            // De to resterende ad-hoc punkter ligger helt til højre
-            { id: 31, title: "Ad-hoc emne 4", x: 93, y: 15, isAdhoc: true },
-            { id: 32, title: "Ad-hoc emne 5", x: 96, y: 80, isAdhoc: true }
-        ];
-
         const mapContainer = document.getElementById('map');
-        const mobileList = document.getElementById('mobile-list');
+        const themeList = document.getElementById('theme-list');
 
         function initMap() {
             chapters.forEach(chapter => {
@@ -255,18 +222,13 @@
                 mapContainer.appendChild(node);
 
                 const listItem = document.createElement('li');
-                listItem.className = 'bg-white border border-slate-200 shadow-sm p-4 rounded-xl text-sm md:text-base font-semibold hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors';
-                
+                listItem.className = 'menu-item';
+
                 const textColorClass = chapter.isAdhoc ? 'text-red-600' : 'text-slate-700';
-                const arrowColorClass = chapter.isAdhoc ? 'text-red-500' : 'text-yellow-500';
-                
-                listItem.innerHTML = `<span class="${textColorClass}">${chapter.title}</span> <svg class="w-5 h-5 ${arrowColorClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
-                
-                listItem.addEventListener('click', () => {
-                     window.location.href = filename;
-                });
-                
-                mobileList.appendChild(listItem);
+
+                listItem.innerHTML = `<a href="${filename}" class="block font-semibold ${textColorClass} hover:text-blue-900 transition-colors">${chapter.title}</a>`;
+
+                themeList.appendChild(listItem);
             });
         }
 
